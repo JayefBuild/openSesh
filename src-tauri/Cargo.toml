@@ -1,0 +1,62 @@
+[package]
+name = "opensesh"
+version = "0.1.0"
+description = "Open Sesh - Model-agnostic AI Coding Workbench"
+authors = ["you"]
+edition = "2021"
+
+[lib]
+name = "opensesh_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# HTTP client for AI providers
+reqwest = { version = "0.12", features = ["json", "stream"] }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+tokio-stream = "0.1"
+
+# Utilities
+futures = "0.3"
+async-trait = "0.1"
+thiserror = "2"
+
+# File operations
+glob = "0.3"
+walkdir = "2"
+grep-regex = "0.1"
+grep-searcher = "0.1"
+
+# Environment
+dotenvy = "0.15"
+
+# Unique IDs
+uuid = { version = "1", features = ["v4"] }
+
+# Logging
+log = "0.4"
+env_logger = "0.11"
+
+# Bytes for streaming
+bytes = "1"
+
+# For SSE parsing
+eventsource-stream = "0.2"
+futures-util = "0.3"
+
+# PTY support for terminal
+portable-pty = "0.8"
+
+[dev-dependencies]
+tempfile = "3"
+
