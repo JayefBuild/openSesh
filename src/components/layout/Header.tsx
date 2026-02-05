@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Menu,
   ChevronDown,
@@ -11,6 +11,7 @@ import {
   PanelRightOpen,
   PanelRightClose,
 } from 'lucide-react';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/uiStore';
 import { useThreadStore } from '@/stores/threadStore';
@@ -18,7 +19,6 @@ import { useProjectStore } from '@/stores/projectStore';
 import { usePendingChangesStore } from '@/stores/pendingChangesStore';
 import { Button } from '@/components/ui/Button';
 import { DropdownMenu, DropdownItem, DropdownSeparator } from '@/components/ui/Dropdown';
-import { SkillBadges } from '@/components/skills';
 
 interface HeaderProps {
   className?: string;
@@ -70,10 +70,22 @@ export function Header({ className }: HeaderProps) {
     }
   };
 
+  // Use programmatic dragging API for reliable window dragging
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    // Only start drag on left mouse button and on the element itself (not children)
+    if (e.button === 0 && e.target === e.currentTarget) {
+      e.preventDefault();
+      getCurrentWindow().startDragging();
+    }
+  }, []);
+
   return (
     <header
+      data-tauri-drag-region
       className={cn(
-        'h-12 flex items-center justify-between px-4 bg-[#0f0f0f] border-b border-[#333]',
+        'h-12 flex items-center px-4 bg-[#0f0f0f] border-b border-[#333]',
+        // Add left padding for macOS traffic lights (window controls)
+        'pl-20',
         className
       )}
     >
@@ -122,13 +134,14 @@ export function Header({ className }: HeaderProps) {
         )}
       </div>
 
+      {/* Draggable spacer - fills the middle area for window dragging */}
+      <div
+        onMouseDown={handleDragStart}
+        className="flex-1 h-full min-w-[40px] cursor-default"
+      />
+
       {/* Right section */}
       <div className="flex items-center gap-2">
-        {/* Active skills badges */}
-        {activeThread && (
-          <SkillBadges threadId={activeThread.id} maxVisible={4} />
-        )}
-
         {/* Pending changes button */}
         {pendingChanges.length > 0 && (
           <Button

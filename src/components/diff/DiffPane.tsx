@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { X, Plus, GitBranch, RefreshCw, ArrowUp, ArrowDown, Loader2, AlertTriangle } from 'lucide-react';
+import { Plus, GitBranch, RefreshCw, ArrowUp, ArrowDown, Loader2, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/uiStore';
 import { useProjectStore } from '@/stores/projectStore';
@@ -194,22 +194,14 @@ export function DiffPane({ className }: DiffPaneProps) {
             </div>
           )}
         </div>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={handleRefresh}
-            disabled={isLoading}
-            className="p-1 rounded hover:bg-[#252525] text-[#666] hover:text-white transition-colors disabled:opacity-50"
-            title="Refresh"
-          >
-            <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
-          </button>
-          <button
-            onClick={handleClose}
-            className="p-1 rounded hover:bg-[#252525] text-[#666] hover:text-white transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={isLoading}
+          className="p-1 rounded hover:bg-[#252525] text-[#666] hover:text-white transition-colors disabled:opacity-50"
+          title="Refresh"
+        >
+          <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
+        </button>
       </div>
 
       {/* Error display */}
@@ -228,71 +220,77 @@ export function DiffPane({ className }: DiffPaneProps) {
 
       {/* Content */}
       {status && (
-        <>
-          {/* Commit panel */}
-          {stagedCount > 0 && (
-            <div className="border-b border-[#333]">
-              <CommitPanel projectPath={activeProject.path} />
+        <div className="flex-1 flex min-h-0 overflow-hidden">
+          {/* Left side: Diff viewer */}
+          <div className="flex-1 flex flex-col min-w-0">
+            {/* Diff viewer */}
+            <div className="flex-1 min-h-0 overflow-hidden">
+              {selectedFile ? (
+                <ErrorBoundary fallback={<DiffErrorFallback />}>
+                  <DiffViewer
+                    projectPath={activeProject.path}
+                    filePath={selectedFile}
+                    staged={selectedFileStaged}
+                  />
+                </ErrorBoundary>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-sm text-[#666]">
+                    {totalChanges > 0
+                      ? 'Select a file to view diff'
+                      : 'Working tree clean'}
+                  </p>
+                </div>
+              )}
             </div>
-          )}
 
-          {/* File tree */}
-          <div className="flex-shrink-0 border-b border-[#333] overflow-hidden">
-            <FileTree
-              staged={status.staged}
-              unstaged={status.unstaged}
-              untracked={status.untracked}
-              projectPath={activeProject.path}
-            />
-          </div>
+            {/* Actions bar */}
+            {(unstagedCount > 0 || untrackedCount > 0) && (
+              <div className="flex items-center gap-2 p-3 border-t border-[#333]">
+                <span className="text-xs text-[#666]">
+                  {totalChanges} change{totalChanges !== 1 ? 's' : ''}
+                </span>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<Plus className="h-4 w-4" />}
+                  onClick={handleStageAll}
+                  className="ml-auto"
+                  disabled={isLoading}
+                >
+                  Stage All
+                </Button>
+              </div>
+            )}
 
-          {/* Diff viewer */}
-          <div className="flex-1 min-h-0 overflow-hidden">
-            {selectedFile ? (
-              <ErrorBoundary fallback={<DiffErrorFallback />}>
-                <DiffViewer
-                  projectPath={activeProject.path}
-                  filePath={selectedFile}
-                  staged={selectedFileStaged}
-                />
-              </ErrorBoundary>
-            ) : (
-              <div className="h-full flex items-center justify-center">
-                <p className="text-sm text-[#666]">
-                  {totalChanges > 0
-                    ? 'Select a file to view diff'
-                    : 'Working tree clean'}
-                </p>
+            {/* Clean state */}
+            {isClean && (
+              <div className="p-4 text-center">
+                <p className="text-xs text-[#666]">No changes to commit</p>
               </div>
             )}
           </div>
 
-          {/* Actions */}
-          {(unstagedCount > 0 || untrackedCount > 0) && (
-            <div className="flex items-center gap-2 p-3 border-t border-[#333]">
-              <span className="text-xs text-[#666]">
-                {totalChanges} change{totalChanges !== 1 ? 's' : ''}
-              </span>
-              <Button
-                variant="secondary"
-                size="sm"
-                leftIcon={<Plus className="h-4 w-4" />}
-                onClick={handleStageAll}
-                className="ml-auto"
-                disabled={isLoading}
-              >
-                Stage All
-              </Button>
+          {/* Right side: File tree + commit panel */}
+          <div className="w-64 flex-shrink-0 border-l border-[#333] flex flex-col">
+            {/* File tree - expands to fill available space */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden">
+              <FileTree
+                staged={status.staged}
+                unstaged={status.unstaged}
+                untracked={status.untracked}
+                projectPath={activeProject.path}
+              />
             </div>
-          )}
 
-          {/* Clean state */}
-          {isClean && (
-            <div className="p-4 text-center">
-              <p className="text-xs text-[#666]">No changes to commit</p>
-            </div>
-          )}
-        </>
+            {/* Commit panel pinned at bottom */}
+            {stagedCount > 0 && (
+              <div className="flex-shrink-0 border-t border-[#333]">
+                <CommitPanel projectPath={activeProject.path} />
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

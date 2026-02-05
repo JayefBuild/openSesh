@@ -114,7 +114,7 @@ export function FileTree({
   }
 
   return (
-    <div className={cn('max-h-60 overflow-y-auto', className)}>
+    <div className={cn('', className)}>
       {/* Staged changes */}
       {stagedFiles.length > 0 && (
         <FileSection
