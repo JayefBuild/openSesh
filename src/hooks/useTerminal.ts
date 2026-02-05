@@ -39,6 +39,18 @@ export function useTerminal(options: UseTerminalOptions = {}) {
 
   const { cwd, onExit, fontSize = 13 } = options;
 
+  // Use refs for values that shouldn't trigger re-initialization
+  const cwdRef = useRef(cwd);
+  const onExitRef = useRef(onExit);
+  const fontSizeRef = useRef(fontSize);
+
+  // Update refs when values change
+  useEffect(() => {
+    cwdRef.current = cwd;
+    onExitRef.current = onExit;
+    fontSizeRef.current = fontSize;
+  }, [cwd, onExit, fontSize]);
+
   // Write data to the terminal display
   const write = useCallback((data: string) => {
     terminalInstance.current?.write(data);
@@ -106,7 +118,7 @@ export function useTerminal(options: UseTerminalOptions = {}) {
 
     const terminal = new Terminal({
       cursorBlink: true,
-      fontSize,
+      fontSize: fontSizeRef.current,
       fontFamily: '"SF Mono", "Fira Code", "Consolas", monospace',
       theme: {
         background: '#0f0f0f',
@@ -151,7 +163,7 @@ export function useTerminal(options: UseTerminalOptions = {}) {
     try {
       // Spawn the PTY session
       const info = await invoke<TerminalInfo>('spawn_terminal', {
-        cwd,
+        cwd: cwdRef.current,
         cols,
         rows,
       });
@@ -170,8 +182,8 @@ export function useTerminal(options: UseTerminalOptions = {}) {
       const unlistenExit = await listen<PtyExitEvent>('pty-exit', (event) => {
         if (event.payload.terminal_id === info.id) {
           terminal.writeln(`\r\n\x1b[1;33m[Process exited with code ${event.payload.exit_code ?? 'unknown'}]\x1b[0m`);
-          if (onExit) {
-            onExit(event.payload.exit_code);
+          if (onExitRef.current) {
+            onExitRef.current(event.payload.exit_code);
           }
         }
       });
@@ -202,7 +214,7 @@ export function useTerminal(options: UseTerminalOptions = {}) {
     }
 
     return terminal;
-  }, [fontSize, cwd, onExit]);
+  }, []);
 
   const dispose = useCallback(async () => {
     // Clean up event listeners
@@ -232,17 +244,35 @@ export function useTerminal(options: UseTerminalOptions = {}) {
     setTerminalId(null);
   }, [terminalId]);
 
-  // Initialize terminal on mount
+  // Initialize terminal on mount - only run once
   useEffect(() => {
-    const timer = setTimeout(() => {
-      initTerminal();
-    }, 0);
+    let mounted = true;
+
+    const init = async () => {
+      if (mounted) {
+        await initTerminal();
+      }
+    };
+
+    init();
 
     return () => {
-      clearTimeout(timer);
-      dispose();
+      mounted = false;
+      // Cleanup on unmount
+      if (unlistenOutputRef.current) {
+        unlistenOutputRef.current();
+        unlistenOutputRef.current = null;
+      }
+      if (unlistenExitRef.current) {
+        unlistenExitRef.current();
+        unlistenExitRef.current = null;
+      }
+      terminalInstance.current?.dispose();
+      terminalInstance.current = null;
+      fitAddon.current = null;
     };
-  }, [initTerminal, dispose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Handle window resize
   useEffect(() => {

@@ -102,20 +102,18 @@ export function MainLayout() {
                 />
               )}
 
-              {/* Terminal pane */}
-              <AnimatePresence>
-                {terminalOpen && (
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: terminalHeight }}
-                    exit={{ height: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden border-t border-[#333]"
-                  >
-                    <TerminalPane />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* Terminal pane - always mounted to preserve session */}
+              <div
+                style={{
+                  height: terminalOpen ? terminalHeight : 0,
+                  overflow: 'hidden',
+                }}
+                className={terminalOpen ? 'border-t border-[#333]' : ''}
+              >
+                <div style={{ height: terminalHeight, visibility: terminalOpen ? 'visible' : 'hidden' }}>
+                  <TerminalPane />
+                </div>
+              </div>
             </div>
 
             {/* Diff pane resize handle */}
