@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Send,
   Paperclip,
-  Mic,
   StopCircle,
 } from 'lucide-react';
 import { cn, generateId } from '@/lib/utils';
@@ -555,9 +554,9 @@ After the user reviews and approves the plan, you will execute each step.`;
         </div>
 
         {/* Bottom toolbar */}
-        <div className="flex items-center justify-between px-3 py-2 border-t border-[#333]">
+        <div className="flex items-center justify-between px-3 py-2 border-t border-[#333] gap-2 min-w-0">
           {/* Left side - Model selector and modes */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0 overflow-x-auto flex-shrink">
             <ModelSelector
               providerId={activeThread?.providerId || 'anthropic'}
               modelId={activeThread?.modelId || 'claude-sonnet-4-20250514'}
@@ -576,21 +575,13 @@ After the user reviews and approves the plan, you will execute each step.`;
           </div>
 
           {/* Right side - Actions */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0">
             {/* Attachment button */}
             <button
               className="p-2 rounded hover:bg-[#252525] text-[#666] hover:text-white transition-colors"
               title="Attach file"
             >
               <Paperclip className="h-4 w-4" />
-            </button>
-
-            {/* Mic button */}
-            <button
-              className="p-2 rounded hover:bg-[#252525] text-[#666] hover:text-white transition-colors"
-              title="Voice input"
-            >
-              <Mic className="h-4 w-4" />
             </button>
 
             {/* Send/Stop button */}

@@ -17,7 +17,7 @@ Work with AI across chat, filesystem, terminal, and git — without vendor lock-
 ## Features
 
 - **Multi-provider chat** with streaming, markdown rendering, and file references
-- **Monaco diff viewer** with syntax highlighting, stage/unstage, and revert actions
+- **Monaco diff viewer** with syntax highlighting, stage/unstage, revert, and collapsible file tree
 - **Integrated terminal** with full PTY support (sessions persist when hidden)
 - **Git integration** — status, diff, stage, commit, branch management
 - **File operations** — read, write, edit, glob search, grep

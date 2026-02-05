@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback } from 'react';
-import { Plus, GitBranch, RefreshCw, ArrowUp, ArrowDown, Loader2, AlertTriangle } from 'lucide-react';
+import React, { useEffect, useCallback, useState } from 'react';
+import { Plus, GitBranch, RefreshCw, ArrowUp, ArrowDown, Loader2, AlertTriangle, PanelRightOpen, PanelRightClose } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/uiStore';
 import { useProjectStore } from '@/stores/projectStore';
@@ -52,6 +52,7 @@ interface DiffPaneProps {
 }
 
 export function DiffPane({ className }: DiffPaneProps) {
+  const [fileTreeOpen, setFileTreeOpen] = useState(true);
   const setDiffPaneOpen = useUIStore((state) => state.setDiffPaneOpen);
 
   const activeProjectId = useProjectStore((state) => state.activeProjectId);
@@ -194,14 +195,32 @@ export function DiffPane({ className }: DiffPaneProps) {
             </div>
           )}
         </div>
-        <button
-          onClick={handleRefresh}
-          disabled={isLoading}
-          className="p-1 rounded hover:bg-[#252525] text-[#666] hover:text-white transition-colors disabled:opacity-50"
-          title="Refresh"
-        >
-          <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setFileTreeOpen(!fileTreeOpen)}
+            className={cn(
+              'p-1 rounded transition-colors',
+              fileTreeOpen
+                ? 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                : 'hover:bg-[#252525] text-[#666] hover:text-white'
+            )}
+            title={fileTreeOpen ? 'Hide file tree' : 'Show file tree'}
+          >
+            {fileTreeOpen ? (
+              <PanelRightClose className="h-4 w-4" />
+            ) : (
+              <PanelRightOpen className="h-4 w-4" />
+            )}
+          </button>
+          <button
+            onClick={handleRefresh}
+            disabled={isLoading}
+            className="p-1 rounded hover:bg-[#252525] text-[#666] hover:text-white transition-colors disabled:opacity-50"
+            title="Refresh"
+          >
+            <RefreshCw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
+          </button>
+        </div>
       </div>
 
       {/* Error display */}
@@ -271,25 +290,27 @@ export function DiffPane({ className }: DiffPaneProps) {
             )}
           </div>
 
-          {/* Right side: File tree + commit panel */}
-          <div className="w-64 flex-shrink-0 border-l border-[#333] flex flex-col">
-            {/* File tree - expands to fill available space */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden">
-              <FileTree
-                staged={status.staged}
-                unstaged={status.unstaged}
-                untracked={status.untracked}
-                projectPath={activeProject.path}
-              />
-            </div>
-
-            {/* Commit panel pinned at bottom */}
-            {stagedCount > 0 && (
-              <div className="flex-shrink-0 border-t border-[#333]">
-                <CommitPanel projectPath={activeProject.path} />
+          {/* Right side: File tree + commit panel (toggleable) */}
+          {fileTreeOpen && (
+            <div className="w-64 flex-shrink-0 border-l border-[#333] flex flex-col">
+              {/* File tree - expands to fill available space */}
+              <div className="flex-1 overflow-y-auto overflow-x-hidden">
+                <FileTree
+                  staged={status.staged}
+                  unstaged={status.unstaged}
+                  untracked={status.untracked}
+                  projectPath={activeProject.path}
+                />
               </div>
-            )}
-          </div>
+
+              {/* Commit panel pinned at bottom */}
+              {stagedCount > 0 && (
+                <div className="flex-shrink-0 border-t border-[#333]">
+                  <CommitPanel projectPath={activeProject.path} />
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
