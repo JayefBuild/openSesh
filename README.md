@@ -1,33 +1,56 @@
 # Open Sesh
 
-**Model-agnostic AI coding workbench** — an open-source alternative to the Codex app.
+**An open-source, model-agnostic AI coding workbench** — inspired by the Codex app.
 
-Work with AI across chat, filesystem, terminal, and git without vendor lock-in.
+Work with AI across chat, filesystem, terminal, and git — without vendor lock-in, subscriptions, or your code leaving your machine.
+
+![Open Sesh Screenshot](docs/screenshot.png)
+
+## Why Open Sesh?
+
+- **Use any AI provider** — Anthropic, OpenAI, Gemini, Ollama, or any OpenAI-compatible endpoint
+- **Local-first** — Your code stays on your machine unless you choose a cloud provider
+- **Diff-first** — Every change is reviewable before applied
+- **Keyboard-first** — Power users never need to reach for the mouse
+- **Open source** — MIT licensed, community-driven
 
 ## Features
 
-- **Multi-provider support**: Anthropic (Claude), OpenAI (GPT), with extensible adapter system
-- **Chat interface**: Markdown rendering, file references, tool result summaries
-- **Diff viewer**: Monaco-based unified diff view with stage/revert actions
-- **Terminal**: Integrated xterm.js terminal with PTY support
-- **Git integration**: Status, diff, log, stage, commit
-- **File operations**: Read, write, edit, search (glob), grep
-- **Keyboard-first**: Command palette (Cmd+K), comprehensive shortcuts
-- **Safe by default**: All destructive operations require approval
+- **Multi-provider chat** with streaming, markdown rendering, and file references
+- **Monaco diff viewer** with syntax highlighting, stage/unstage, and revert actions
+- **Integrated terminal** with full PTY support (sessions persist when hidden)
+- **Git integration** — status, diff, stage, commit, branch management
+- **File operations** — read, write, edit, glob search, grep
+- **Command palette** (Cmd+K) with fuzzy search
+- **Plan mode** — AI generates execution plans for approval before making changes
+- **Safe by default** — destructive operations require explicit approval
 
 ## Quick Start
 
 ### Prerequisites
 
-Run the setup script to install dependencies:
+- [Node.js](https://nodejs.org/) 18+
+- [Rust](https://rustup.rs/)
+- [pnpm](https://pnpm.io/)
+
+### Setup
 
 ```bash
-./setup.sh
+# Clone the repo
+git clone https://github.com/JayefBuild/openSesh.git
+cd openSesh
+
+# Install dependencies
+pnpm install
+
+# Create .env with your API keys
+cp .env.example .env
+# Edit .env and add your keys
 ```
 
 ### Configuration
 
-Create a `.env` file with your API keys:
+Add your API keys to `.env`:
 
 ```bash
 ANTHROPIC_API_KEY=sk-ant-...
@@ -37,7 +60,6 @@ OPENAI_API_KEY=sk-...
 ### Development
 
 ```bash
-pnpm install
 pnpm tauri dev
 ```
 
@@ -47,6 +69,21 @@ pnpm tauri dev
 pnpm tauri build
 ```
 
+The built app will be in `src-tauri/target/release/bundle/`.
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Cmd+K` | Command palette |
+| `Cmd+J` | Toggle terminal |
+| `Cmd+N` | New thread |
+| `Cmd+O` | Open project |
+| `Cmd+,` | Settings |
+| `Cmd+Enter` | Send message |
+| `Cmd+.` | Stop generation |
+| `Escape` | Close modal/cancel |
+
 ## Architecture
 
 ```
@@ -54,42 +91,44 @@ openSesh/
 ├── src/                    # React frontend (TypeScript)
 │   ├── components/         # UI components
 │   │   ├── chat/          # Chat interface
-│   │   ├── diff/          # Diff viewer
+│   │   ├── diff/          # Diff viewer & file tree
 │   │   ├── terminal/      # Terminal pane
-│   │   ├── sidebar/       # Project/thread navigation
-│   │   ├── layout/        # App layout components
-│   │   ├── command-palette/
-│   │   └── ui/            # Reusable UI primitives
+│   │   ├── layout/        # App shell (Header, Sidebar)
+│   │   └── ui/            # Reusable primitives
 │   ├── stores/            # Zustand state management
 │   ├── hooks/             # Custom React hooks
-│   └── lib/               # Utilities
+│   └── lib/               # Utilities & Tauri bindings
 ├── src-tauri/             # Rust backend
 │   └── src/
 │       ├── commands/      # Tauri IPC commands
 │       ├── providers/     # AI provider adapters
-│       └── tools/         # Tool implementations
-└── docs/                  # Documentation
+│       └── tools/         # File, git, terminal tools
+└── PRD.md                 # Product requirements document
 ```
-
-## Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| Cmd+K | Command palette |
-| Cmd+J | Toggle terminal |
-| Cmd+N | New thread |
-| Cmd+, | Settings |
-| Cmd+Enter | Send message |
-| Escape | Close modal/palette |
 
 ## Tech Stack
 
-- **Desktop**: Tauri v2 + Rust
-- **Frontend**: React + TypeScript + Vite
-- **State**: Zustand
-- **Styling**: Tailwind CSS
-- **Editor**: Monaco Editor
-- **Terminal**: xterm.js
+- **Desktop shell**: [Tauri v2](https://v2.tauri.app/) + Rust
+- **Frontend**: React 18 + TypeScript + [Vite](https://vite.dev/)
+- **State**: [Zustand](https://zustand-demo.pmnd.rs/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Editor/Diff**: [Monaco Editor](https://microsoft.github.io/monaco-editor/)
+- **Terminal**: [xterm.js](https://xtermjs.org/) + portable-pty
+
+## Roadmap
+
+- [ ] Ollama / local model support
+- [ ] Google Gemini provider
+- [ ] Git worktree support for parallel threads
+- [ ] Skills/plugin system
+- [ ] Scheduled automations
+- [ ] Windows & Linux builds
+
+See [PRD.md](PRD.md) for the full product vision.
+
+## Contributing
+
+Contributions welcome! Please read the PRD to understand the product direction.
 
 ## License
 
