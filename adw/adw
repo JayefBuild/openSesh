@@ -1,0 +1,6 @@
+#!/bin/bash
+# ADW Pipeline CLI wrapper
+# Usage: adw execute plans/feature.md [options]
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+bun run "$SCRIPT_DIR/cli.ts" "$@"

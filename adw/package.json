@@ -1,0 +1,28 @@
+{
+  "name": "adw-pipeline",
+  "version": "1.0.0",
+  "description": "ADW Pipeline - AI Development Workflow Orchestration",
+  "module": "cli.ts",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "pipeline": "./cli.ts",
+    "adw-pipeline": "./cli.ts"
+  },
+  "scripts": {
+    "start": "bun run cli.ts",
+    "pipeline": "bun run cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^25.1.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2"
+  }
+}
